@@ -1,0 +1,18 @@
+services:
+  api:
+    build: ./backend
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://gramin:gramin@db:5432/gramin
+      JWT_SECRET: local-development-secret-change-me
+    depends_on: [db]
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gramin
+      POSTGRES_USER: gramin
+      POSTGRES_PASSWORD: gramin
+    volumes: ["gramin_data:/var/lib/postgresql/data"]
+volumes:
+  gramin_data:
+
