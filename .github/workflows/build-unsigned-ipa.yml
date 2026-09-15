@@ -1,6 +1,10 @@
 name: Build unsigned IPA
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "ios/**"
+      - ".github/workflows/build-unsigned-ipa.yml"
 jobs:
   build:
     runs-on: macos-15
@@ -34,4 +38,3 @@ jobs:
           name: Gramin-unsigned-IPA
           path: ios/Gramin-unsigned.ipa
           retention-days: 14
-
