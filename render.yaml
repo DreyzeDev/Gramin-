@@ -2,6 +2,7 @@ services:
   - type: web
     name: gramin-api
     runtime: docker
+    plan: free
     rootDir: backend
     healthCheckPath: /health
     envVars:
@@ -15,6 +16,6 @@ services:
         value: "10080"
 databases:
   - name: gramin-db
+    plan: free
     databaseName: gramin
     user: gramin
-
