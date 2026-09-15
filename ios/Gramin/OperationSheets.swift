@@ -82,7 +82,8 @@ struct TransferSheet: View {
         }
     }
     private var aznEquivalent: Double {
-        let rate = ["AZN": 1.0, "USD": 1.7, "EUR": 1.85, "RUB": 0.018][currency] ?? 1
+        let rates: [String: Double] = ["AZN": 1.0, "USD": 1.7, "EUR": 1.85, "RUB": 0.018]
+        let rate = rates[currency] ?? 1.0
         return (Double(amount) ?? 0) * rate
     }
 }
