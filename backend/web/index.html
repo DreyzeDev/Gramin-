@@ -44,7 +44,7 @@
   <div id="shell" class="shell hidden">
     <header class="topbar">
       <div><span class="eyebrow">GRAMIN</span><h2 id="page-title">Главная</h2></div>
-      <button id="refresh" class="icon-button" aria-label="Обновить">↻</button>
+      <button id="refresh" class="icon-button" aria-label="Обновить"><span data-icon="refresh"></span></button>
     </header>
 
     <div id="content" class="content">
@@ -55,9 +55,9 @@
           <div id="wallets" class="wallet-strip"></div>
         </div>
         <div class="quick-actions">
-          <button data-action="transfer"><b>↗</b><span>Перевести</span></button>
-          <button data-action="topup"><b>＋</b><span>Пополнить</span></button>
-          <button data-action="exchange"><b>⇄</b><span>Обменять</span></button>
+          <button data-action="transfer"><b><span data-icon="send"></span></b><span>Перевести</span></button>
+          <button data-action="topup"><b><span data-icon="plus"></span></b><span>Пополнить</span></button>
+          <button data-action="exchange"><b><span data-icon="repeat"></span></b><span>Обменять</span></button>
         </div>
         <div class="section-heading"><h3>Последние операции</h3></div>
         <div id="transactions" class="list"></div>
@@ -98,11 +98,11 @@
     </div>
 
     <nav class="tabbar">
-      <button class="active" data-view="home"><b>⌂</b><span>Главная</span></button>
-      <button data-view="cards"><b>▣</b><span>Карты</span></button>
-      <button data-view="payments"><b>▦</b><span>Платежи</span></button>
-      <button data-view="analytics"><b>◔</b><span>Аналитика</span></button>
-      <button data-view="profile"><b>●</b><span>Профиль</span></button>
+      <button class="active" data-view="home"><b><span data-icon="home"></span></b><span>Главная</span></button>
+      <button data-view="cards"><b><span data-icon="card"></span></b><span>Карты</span></button>
+      <button data-view="payments"><b><span data-icon="grid"></span></b><span>Платежи</span></button>
+      <button data-view="analytics"><b><span data-icon="chart"></span></b><span>Аналитика</span></button>
+      <button data-view="profile"><b><span data-icon="user"></span></b><span>Профиль</span></button>
     </nav>
   </div>
 

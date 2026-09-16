@@ -1,6 +1,37 @@
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+const iconPaths = {
+  refresh: '<path d="M20 6v5h-5"/><path d="M19 11a8 8 0 1 0 1.3 6.3"/>',
+  home: '<path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/>',
+  card: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/><path d="M7 15h3"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  chart: '<path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19V3"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  send: '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
+  phone: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+  wifi: '<path d="M5 12.6a11 11 0 0 1 14 0"/><path d="M8.5 16a6 6 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/>',
+  bolt: '<path d="m13 2-9 12h7l-1 8 9-12h-7z"/>',
+  gamepad: '<path d="M7 8h10a5 5 0 0 1 4.7 6.8l-1 2.7a2.4 2.4 0 0 1-4.1.7L15 16H9l-1.6 2.2a2.4 2.4 0 0 1-4.1-.7l-1-2.7A5 5 0 0 1 7 8Z"/><path d="M7 12v4M5 14h4M16 13h.01M19 15h.01"/>',
+  receipt: '<path d="M6 3v18l3-2 3 2 3-2 3 2V3l-3 2-3-2-3 2z"/><path d="M9 10h6M9 14h6"/>',
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
+  down: '<path d="M7 7h10v10"/><path d="M17 7 7 17"/>',
+  up: '<path d="M7 17 17 7"/><path d="M7 7h10v10"/>',
+  snowflake: '<path d="M12 2v20M4.9 6l14.2 12M4.9 18 19.1 6M9 4l3 3 3-3M9 20l3-3 3 3"/>',
+  eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>'
+};
+
+function icon(name, className = "") {
+  return `<svg class="svg-icon ${className}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconPaths[name] || iconPaths.grid}</svg>`;
+}
+
+function hydrateIcons(root = document) {
+  $$('[data-icon]', root).forEach(node => { node.innerHTML = icon(node.dataset.icon); });
+}
+
 const state = {
   token: localStorage.getItem("gramin-token") || window.__GRAMIN_NATIVE_TOKEN || "",
   profile: null, wallets: [], cards: [], transactions: [], notifications: [], period: "month"
@@ -8,12 +39,12 @@ const state = {
 
 const rates = { AZN: 1, USD: 1.7, EUR: 1.85, RUB: 0.018 };
 const services = [
-  ["mobile", "Мобильная связь", "⌕", ["Azercell", "Bakcell", "Nar"]],
-  ["internet", "Интернет", "⌁", ["CityNet", "Baktelecom"]],
-  ["utilities", "Коммунальные", "ϟ", ["Электричество", "Газ", "Вода"]],
-  ["subscriptions", "Игры и подписки", "◇", ["App Store", "Игровой аккаунт", "Подписка"]],
-  ["taxes", "Штрафы и налоги", "▤", ["Штраф", "Налог"]],
-  ["charity", "Благотворительность", "♡", ["Помощь детям", "Защита животных"]]
+  ["mobile", "Мобильная связь", "phone", ["Azercell", "Bakcell", "Nar"]],
+  ["internet", "Интернет", "wifi", ["CityNet", "Baktelecom"]],
+  ["utilities", "Коммунальные", "bolt", ["Электричество", "Газ", "Вода"]],
+  ["subscriptions", "Игры и подписки", "gamepad", ["App Store", "Игровой аккаунт", "Подписка"]],
+  ["taxes", "Штрафы и налоги", "receipt", ["Штраф", "Налог"]],
+  ["charity", "Благотворительность", "heart", ["Помощь детям", "Защита животных"]]
 ];
 
 function nativeMessage(type, value = null) {
@@ -94,7 +125,7 @@ function render() {
   $("#total-balance").textContent = money(total, "AZN");
   $("#wallets").innerHTML = state.wallets.map(item => `<div class="wallet"><span>${item.currency}</span><b>${money(item.balance, item.currency)}</b></div>`).join("");
   $("#transactions").innerHTML = state.transactions.length ? state.transactions.slice(0, 12).map(tx => `
-    <div class="list-row"><div class="row-icon">${tx.amount >= 0 ? "↓" : "↑"}</div><div><b>${escapeHTML(tx.title)}</b><small>${new Date(tx.created_at).toLocaleDateString("ru-RU")}</small></div><span class="amount">${money(tx.amount, tx.currency)}</span></div>`).join("") : `<div class="empty">Операций пока нет</div>`;
+    <div class="list-row"><div class="row-icon">${icon(tx.amount >= 0 ? "down" : "up")}</div><div><b>${escapeHTML(tx.title)}</b><small>${new Date(tx.created_at).toLocaleDateString("ru-RU")}</small></div><span class="amount">${money(tx.amount, tx.currency)}</span></div>`).join("") : `<div class="empty">Операций пока нет</div>`;
   renderCards();
   if (state.profile) {
     $("#profile-name").textContent = `${state.profile.first_name} ${state.profile.last_name}`;
@@ -106,11 +137,11 @@ function render() {
 function renderCards() {
   $("#cards").innerHTML = state.cards.length ? state.cards.map(card => `
     <article class="bank-card ${escapeHTML(card.design)} ${card.frozen ? "frozen" : ""}">
-      <div class="card-top"><b>GRAMIN</b><span>${card.frozen ? "ЗАМОРОЖЕНА" : "VIRTUAL"}</span></div>
+      <div class="card-top"><b>GRAMIN</b><span class="contactless">${icon("wifi")}</span></div>
       <div class="card-number">•••• &nbsp;•••• &nbsp;•••• &nbsp;${card.number.slice(-4)}</div>
       <div class="card-bottom"><span>${card.expiry}</span><b>${card.currency}</b></div>
     </article>
-    <div class="card-actions"><button data-card-freeze="${card.id}">${card.frozen ? "Разморозить" : "Заморозить"}</button><button data-card-details="${card.id}">Реквизиты</button></div>`).join("") : `<div class="empty card">Создайте первую виртуальную карту Gramin</div>`;
+    <div class="card-actions"><button data-card-freeze="${card.id}">${icon("snowflake")}<span>${card.frozen ? "Разморозить" : "Заморозить"}</span></button><button data-card-details="${card.id}">${icon("eye")}<span>Реквизиты</span></button></div>`).join("") : `<div class="empty card"><div class="empty-icon">${icon("card")}</div><b>Карт пока нет</b><span>Создайте первую виртуальную карту Gramin</span></div>`;
   $$('[data-card-freeze]').forEach(button => button.onclick = () => freezeCard(button.dataset.cardFreeze));
   $$('[data-card-details]').forEach(button => button.onclick = () => showCardDetails(button.dataset.cardDetails));
 }
@@ -214,7 +245,7 @@ function bind() {
   $("#dark-mode").checked = localStorage.getItem("gramin-dark") === "1";
   $("#dark-mode").onchange = event => setTheme(event.target.checked);
   $$("#periods button").forEach(button => button.onclick = () => { state.period = button.dataset.period; $$("#periods button").forEach(x => x.classList.toggle("active", x === button)); loadAnalytics(); });
-  $("#services").innerHTML = services.map(item => `<button class="service" data-service="${item[0]}"><b>${item[2]}</b><span>${item[1]}</span></button>`).join("");
+  $("#services").innerHTML = services.map(item => `<button class="service" data-service="${item[0]}"><b>${icon(item[2])}</b><span>${item[1]}</span></button>`).join("");
   $$('[data-service]').forEach(button => button.onclick = () => paymentModal(button.dataset.service));
 }
 
@@ -234,6 +265,6 @@ function setTheme(dark) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  setTheme(localStorage.getItem("gramin-dark") === "1"); bind();
+  setTheme(localStorage.getItem("gramin-dark") === "1"); hydrateIcons(); bind();
   if (state.token) await refreshAll(); else showAuth();
 });
