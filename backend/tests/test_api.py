@@ -12,11 +12,18 @@ def test_web_app_shell_and_assets_are_served_without_cache(client):
     page = client.get("/app")
     assert page.status_code == 200
     assert "Gramin" in page.text
+    assert "version-loader.js" in page.text
+    assert "Что нового" in page.text
     assert "no-store" in page.headers["cache-control"]
     script = client.get("/app-assets/app.js")
     assert script.status_code == 200
     assert "refreshAll" in script.text
     assert "no-store" in script.headers["cache-control"]
+    release = client.get("/app-assets/releases.json")
+    assert release.status_code == 200
+    assert release.json()["latest"] == "0.6.0"
+    assert client.get("/app-assets/releases/0.5.0/app.js").status_code == 200
+    assert client.get("/app-assets/releases/0.6.0/app.js").status_code == 200
 
 
 def test_register_starts_with_four_empty_wallets(client):
