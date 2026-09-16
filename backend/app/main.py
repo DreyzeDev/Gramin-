@@ -129,6 +129,9 @@ def cards(user: User = Depends(current_user), db: Session = Depends(get_db)):
 
 @app.post("/api/cards", response_model=CardOut, status_code=201)
 def create_card(data: CardCreateIn, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    existing = db.scalar(select(Card).where(Card.user_id == user.id, Card.closed.is_(False)))
+    if existing:
+        raise HTTPException(409, "Account already has an active card")
     card = issue_card(db, user, data.currency.upper(), data.design, data.pin)
     notify(db, user.id, "Новая карта", f"Виртуальная карта {data.currency.upper()} создана.", "card")
     db.commit()

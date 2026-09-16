@@ -13,6 +13,7 @@ const iconPaths = {
   repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
   phone: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
   wifi: '<path d="M5 12.6a11 11 0 0 1 14 0"/><path d="M8.5 16a6 6 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/>',
+  contactless: '<path d="M6 5c4 4 4 10 0 14"/><path d="M10 8c2.5 2.5 2.5 5.5 0 8"/><path d="M14 11c1 1 1 1 0 2"/>',
   bolt: '<path d="m13 2-9 12h7l-1 8 9-12h-7z"/>',
   gamepad: '<path d="M7 8h10a5 5 0 0 1 4.7 6.8l-1 2.7a2.4 2.4 0 0 1-4.1.7L15 16H9l-1.6 2.2a2.4 2.4 0 0 1-4.1-.7l-1-2.7A5 5 0 0 1 7 8Z"/><path d="M7 12v4M5 14h4M16 13h.01M19 15h.01"/>',
   receipt: '<path d="M6 3v18l3-2 3 2 3-2 3 2V3l-3 2-3-2-3 2z"/><path d="M9 10h6M9 14h6"/>',
@@ -135,27 +136,54 @@ function render() {
 }
 
 function renderCards() {
+  const holder = state.profile ? `${state.profile.first_name} ${state.profile.last_name}`.toUpperCase() : "GRAMIN USER";
   $("#cards").innerHTML = state.cards.length ? state.cards.map(card => `
-    <article class="bank-card ${escapeHTML(card.design)} ${card.frozen ? "frozen" : ""}">
-      <div class="card-top"><b>GRAMIN</b><span class="contactless">${icon("wifi")}</span></div>
-      <div class="card-number">•••• &nbsp;•••• &nbsp;•••• &nbsp;${card.number.slice(-4)}</div>
-      <div class="card-bottom"><span>${card.expiry}</span><b>${card.currency}</b></div>
-    </article>
-    <div class="card-actions"><button data-card-freeze="${card.id}">${icon("snowflake")}<span>${card.frozen ? "Разморозить" : "Заморозить"}</span></button><button data-card-details="${card.id}">${icon("eye")}<span>Реквизиты</span></button></div>`).join("") : `<div class="empty card"><div class="empty-icon">${icon("card")}</div><b>Карт пока нет</b><span>Создайте первую виртуальную карту Gramin</span></div>`;
+    <div class="card-item">
+      <div class="card-scene">
+        <button type="button" class="bank-card ${escapeHTML(card.design)} ${card.frozen ? "frozen" : ""}" data-card-flip="${card.id}" aria-label="Перевернуть карту" aria-pressed="false">
+          <span class="card-inner">
+            <span class="card-face card-front">
+              <span class="card-glow"></span>
+              <span class="card-top"><b>GRAMIN</b><span class="card-type">VIRTUAL</span></span>
+              <span class="card-middle"><span class="card-chip" aria-hidden="true"></span><span class="contactless">${icon("contactless")}</span></span>
+              <span class="card-number">•••• &nbsp;•••• &nbsp;•••• &nbsp;${card.number.slice(-4)}</span>
+              <span class="card-bottom"><span><small>ВЛАДЕЛЕЦ</small><b>${escapeHTML(holder)}</b></span><span><small>ДЕЙСТВУЕТ ДО</small><b>${card.expiry}</b></span><strong>${card.currency}</strong></span>
+            </span>
+            <span class="card-face card-back">
+              <span class="back-top"><b>GRAMIN</b><span>Карта для онлайн-покупок</span></span>
+              <span class="magnetic-stripe"></span>
+              <span class="signature-row"><span class="signature">${escapeHTML(holder)}</span><span class="cvv"><small>CVV</small><b>${card.cvv}</b></span></span>
+              <span class="back-number">${formatCardNumber(card.number)}</span>
+              <span class="back-bottom"><span>${card.expiry}</span><span>Нажмите, чтобы вернуть карту</span></span>
+            </span>
+          </span>
+        </button>
+      </div>
+      <span class="flip-hint">Нажмите на карту, чтобы увидеть реквизиты</span>
+      <div class="card-actions"><button data-card-freeze="${card.id}">${icon("snowflake")}<span>${card.frozen ? "Разморозить" : "Заморозить"}</span></button><button data-card-flip="${card.id}">${icon("eye")}<span>Перевернуть</span></button></div>
+    </div>`).join("") : `<div class="empty card"><div class="empty-icon">${icon("card")}</div><b>Карт пока нет</b><span>Выпустите одну виртуальную карту для этого аккаунта</span></div>`;
+  $("#create-card").classList.toggle("hidden", state.cards.length > 0);
   $$('[data-card-freeze]').forEach(button => button.onclick = () => freezeCard(button.dataset.cardFreeze));
-  $$('[data-card-details]').forEach(button => button.onclick = () => showCardDetails(button.dataset.cardDetails));
+  $$('[data-card-flip]').forEach(button => button.onclick = () => flipCard(button));
+}
+
+function formatCardNumber(number) {
+  return String(number).match(/.{1,4}/g)?.join(" ") || number;
+}
+
+function flipCard(trigger) {
+  const item = trigger.closest(".card-item");
+  const card = item?.querySelector(".bank-card");
+  if (!card) return;
+  const flipped = card.classList.toggle("is-flipped");
+  card.setAttribute("aria-pressed", String(flipped));
+  item.classList.toggle("showing-back", flipped);
+  nativeMessage("haptic", "selection");
 }
 
 async function freezeCard(id) {
   try { await api(`/api/cards/${id}/freeze`, { method: "POST" }); await refreshAll(); toast("Статус карты обновлён"); }
   catch (error) { toast(error.message); }
-}
-
-function showCardDetails(id) {
-  const card = state.cards.find(item => item.id === id); if (!card) return;
-  openModal("Реквизиты карты", `
-    <label>Номер карты<input readonly value="${card.number.replace(/(.{4})/g, "$1 ").trim()}"></label>
-    <div class="pair"><label>Срок<input readonly value="${card.expiry}"></label><label>CVV<input readonly value="${card.cvv}"></label></div>`, null, "Закрыть");
 }
 
 function openModal(title, fields, onSubmit, submitLabel = "Продолжить") {

@@ -54,6 +54,11 @@ def test_cards_and_payment(client):
     listed = client.get("/api/cards", headers=headers)
     assert listed.status_code == 200
     assert [item["id"] for item in listed.json()] == [card.json()["id"]]
+    duplicate = client.post("/api/cards", headers=headers, json={
+        "currency": "AZN", "design": "obsidian", "pin": "4321"
+    })
+    assert duplicate.status_code == 409
+    assert duplicate.json()["detail"] == "Account already has an active card"
     frozen = client.post(f"/api/cards/{card.json()['id']}/freeze", headers=headers)
     assert frozen.json()["frozen"] is True
     payment = client.post("/api/payments", headers=headers, json={
