@@ -21,14 +21,14 @@ def test_web_app_shell_and_assets_are_served_without_cache(client):
     assert "no-store" in script.headers["cache-control"]
     release = client.get("/app-assets/releases.json")
     assert release.status_code == 200
-    assert release.json()["latest"] == "0.6.3"
+    assert release.json()["latest"] == "0.6.4"
     assert client.get("/app-assets/releases/0.5.0/app.js").status_code == 200
     assert client.get("/app-assets/releases/0.6.0/app.js").status_code == 200
     assert client.get("/app-assets/releases/0.6.1/app.js").status_code == 200
     assert client.get("/app-assets/releases/0.6.2/app.js").status_code == 200
-    latest_script = client.get("/app-assets/releases/0.6.3/app.js")
+    latest_script = client.get("/app-assets/releases/0.6.4/app.js")
     assert latest_script.status_code == 200
-    assert "card-face-entering" in latest_script.text
+    assert "card-minimal-content" in latest_script.text
     assert "setCardFaceVisible" in latest_script.text
 
 
