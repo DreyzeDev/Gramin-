@@ -8,6 +8,7 @@ struct AuthView: View {
     @State private var lastName = ""
     @State private var username = ""
     @State private var password = ""
+    @State private var serverURL = UserDefaults.standard.string(forKey: "serverURL") ?? "https://gramin.moonfacet.com"
     @State private var birthDate = Calendar.current.date(byAdding: .year, value: -18, to: .now) ?? .now
     @State private var avatarItem: PhotosPickerItem?
     @State private var avatarData: Data?
@@ -54,10 +55,18 @@ struct AuthView: View {
                         SecureField("Пароль — минимум 8 символов", text: $password)
                             .textContentType(mode == 0 ? .password : .newPassword)
                             .padding(16).background(.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
+                        TextField("Адрес сервера (https://…)", text: $serverURL)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .padding(16)
+                            .background(.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
                     }
 
                     Button {
                         Task {
+                            UserDefaults.standard.set(serverURL.trimmingCharacters(in: .whitespacesAndNewlines),
+                                                      forKey: "serverURL")
                             if mode == 0 { await state.authenticate(username: username, password: password) }
                             else { await state.register(firstName: firstName, lastName: lastName, username: username,
                                                         password: password, birthDate: birthDate) }
@@ -69,7 +78,8 @@ struct AuthView: View {
                         }
                     }
                     .buttonStyle(PrimaryButtonStyle())
-                    .disabled(state.isBusy || username.count < 4 || password.count < 8 || (mode == 1 && firstName.isEmpty))
+                    .disabled(state.isBusy || username.count < 4 || password.count < 8 || !hasValidServerURL ||
+                              (mode == 1 && firstName.isEmpty))
 
                     Text("Gramin использует только виртуальные деньги")
                         .font(.footnote).foregroundStyle(.secondary)
@@ -91,6 +101,11 @@ struct AuthView: View {
             Text("Gramin").font(.system(size: 42, weight: .bold, design: .rounded))
             Text("Ваши финансы. Только проще.").foregroundStyle(.secondary)
         }
+    }
+
+    private var hasValidServerURL: Bool {
+        guard let url = URL(string: serverURL.trimmingCharacters(in: .whitespacesAndNewlines)) else { return false }
+        return url.scheme == "https" || url.scheme == "http"
     }
 
     private func field(_ title: String, text: Binding<String>, content: UITextContentType? = nil) -> some View {

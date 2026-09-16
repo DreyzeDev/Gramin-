@@ -82,6 +82,12 @@ open Gramin.xcodeproj
 
 Open **Profile → Server** and enter the public HTTPS address of the deployed API.
 
+The default API address in the iOS client is `https://gramin.moonfacet.com`. It can also be changed on the sign-in screen or later in **Profile → Server**.
+
+### App updates
+
+Each iOS build publishes `Gramin-unsigned.ipa` in GitHub Releases. The app checks the latest release when it opens and offers a download when a newer version is available. Because iOS does not allow an unsigned native app to replace its own executable, the downloaded IPA must still be signed with AltStore or Sideloadly and installed over the existing app. Installing over the same bundle identifier preserves local app data.
+
 ## Build an unsigned IPA
 
 Open **Actions → Build unsigned IPA → Run workflow**. Download `Gramin-unsigned-IPA` from the completed run.

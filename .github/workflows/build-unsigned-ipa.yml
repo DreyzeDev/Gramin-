@@ -1,4 +1,6 @@
 name: Build unsigned IPA
+permissions:
+  contents: write
 on:
   workflow_dispatch:
   push:
@@ -38,3 +40,17 @@ jobs:
           name: Gramin-unsigned-IPA
           path: ios/Gramin-unsigned.ipa
           retention-days: 14
+      - name: Publish IPA in GitHub Releases
+        working-directory: ios
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's/.*MARKETING_VERSION: *"\([^"]*\)".*/\1/p' project.yml)
+          TAG="v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" Gramin-unsigned.ipa --clobber
+          else
+            gh release create "$TAG" Gramin-unsigned.ipa \
+              --title "Gramin ${VERSION}" \
+              --notes "Unsigned iOS build. Sign it with your Apple ID using AltStore or Sideloadly, then install it over the previous version."
+          fi

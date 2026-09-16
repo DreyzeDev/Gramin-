@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var state: AppState
-    @State private var serverURL = UserDefaults.standard.string(forKey: "serverURL") ?? "http://127.0.0.1:8000"
+    @State private var serverURL = UserDefaults.standard.string(forKey: "serverURL") ?? "https://gramin.moonfacet.com"
     @State private var newPIN = ""
     var body: some View {
         List {

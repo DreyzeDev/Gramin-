@@ -4,6 +4,7 @@ import SwiftUI
 struct GraminApp: App {
     @StateObject private var state = AppState()
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
 
     var body: some Scene {
         WindowGroup {
@@ -21,7 +22,18 @@ struct GraminApp: App {
             .environmentObject(state)
             .environment(\.locale, Locale(identifier: state.appLanguage))
             .preferredColorScheme(state.darkMode ? .dark : .light)
-            .task { await state.restoreSession() }
+            .task {
+                await state.restoreSession()
+                await state.checkForUpdates()
+            }
+            .alert(item: $state.availableUpdate) { update in
+                Alert(
+                    title: Text("Доступно обновление Gramin \(update.version)"),
+                    message: Text("Скачайте новую IPA и установите её поверх текущей версии — данные приложения сохранятся."),
+                    primaryButton: .default(Text("Скачать")) { openURL(update.downloadURL) },
+                    secondaryButton: .cancel(Text("Позже"))
+                )
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { state.lockIfNeeded() }

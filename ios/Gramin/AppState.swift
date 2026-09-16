@@ -16,6 +16,7 @@ final class AppState: ObservableObject {
     @Published var darkMode = false
     @Published var faceIDEnabled = UserDefaults.standard.bool(forKey: "faceIDEnabled")
     @Published var appLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "ru"
+    @Published var availableUpdate: AppUpdate?
     private(set) var token: String?
 
     func restoreSession() async {
@@ -23,6 +24,10 @@ final class AppState: ObservableObject {
         token = saved; isAuthenticated = true
         if faceIDEnabled { isLocked = true }
         await refresh()
+    }
+
+    func checkForUpdates() async {
+        availableUpdate = await UpdateService.latest()
     }
 
     func authenticate(username: String, password: String) async {

@@ -16,7 +16,7 @@ actor APIClient {
     private let session: URLSession = .shared
 
     private var baseURL: URL? {
-        let raw = UserDefaults.standard.string(forKey: "serverURL") ?? "http://127.0.0.1:8000"
+        let raw = UserDefaults.standard.string(forKey: "serverURL") ?? "https://gramin.moonfacet.com"
         return URL(string: raw.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 

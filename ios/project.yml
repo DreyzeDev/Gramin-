@@ -20,6 +20,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dreyze.gramin
         PRODUCT_NAME: Gramin
+        MARKETING_VERSION: "0.2.0"
+        CURRENT_PROJECT_VERSION: "2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_CFBundleDisplayName: Gramin
         INFOPLIST_KEY_UILaunchScreen_Generation: true
