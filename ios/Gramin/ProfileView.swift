@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject private var state: AppState
-    @State private var serverURL = UserDefaults.standard.string(forKey: "serverURL") ?? "https://gramin.moonfacet.com"
     @State private var newPIN = ""
     var body: some View {
         List {
@@ -33,15 +32,10 @@ struct ProfileView: View {
                 Picker("Язык", selection: Binding(get: { state.appLanguage }, set: { state.setLanguage($0) })) {
                     Text("Русский").tag("ru"); Text("English").tag("en")
                 }
-                Toggle("Тёмная тема", isOn: $state.darkMode)
-            }
-            Section("Сервер") {
-                TextField("https://api.example.com", text: $serverURL).textInputAutocapitalization(.never).autocorrectionDisabled()
-                Button("Сохранить адрес") { UserDefaults.standard.set(serverURL, forKey: "serverURL"); Task { await state.refresh() } }
-                Text("Для теста на iPhone укажите публичный HTTPS-адрес развёрнутого API.").font(.caption).foregroundStyle(.secondary)
+                Toggle("Тёмная тема", isOn: Binding(get: { state.darkMode }, set: { state.setDarkMode($0) }))
             }
             Section("О приложении") {
-                LabeledContent("Версия", value: "0.1.0")
+                LabeledContent("Версия", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
                 Label("Только виртуальные деньги", systemImage: "testtube.2")
             }
             Section { Button("Выйти", role: .destructive) { state.logout() } }

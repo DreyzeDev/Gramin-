@@ -19,7 +19,9 @@ struct AnalyticsView: View {
                             Chart(items) { item in
                                 SectorMark(angle: .value("Сумма", item.amount.value), innerRadius: .ratio(0.62), angularInset: 2)
                                     .foregroundStyle(by: .value("Категория", item.name))
-                            }.frame(height: 220).chartLegend(position: .bottom, spacing: 10)
+                            }
+                            .chartForegroundStyleScale(range: GraminTheme.chartPalette)
+                            .frame(height: 220).chartLegend(position: .bottom, spacing: 10)
                         } else { emptyChart }
                     }
                 }
@@ -28,8 +30,10 @@ struct AnalyticsView: View {
                         Text("Динамика расходов").font(.headline)
                         if let days = analytics?.daily, !days.isEmpty {
                             Chart(days) { day in
-                                LineMark(x: .value("Дата", day.date), y: .value("AZN", day.amount.value)).interpolationMethod(.catmullRom)
-                                AreaMark(x: .value("Дата", day.date), y: .value("AZN", day.amount.value)).opacity(0.12)
+                                LineMark(x: .value("Дата", day.date), y: .value("AZN", day.amount.value))
+                                    .interpolationMethod(.catmullRom).foregroundStyle(.primary)
+                                AreaMark(x: .value("Дата", day.date), y: .value("AZN", day.amount.value))
+                                    .foregroundStyle(Color.primary.opacity(0.12))
                             }.frame(height: 210).chartYAxis { AxisMarks(position: .leading) }
                         } else { emptyChart }
                     }

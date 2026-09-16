@@ -13,7 +13,7 @@ final class AppState: ObservableObject {
     @Published var transactions: [Transaction] = []
     @Published var notifications: [NotificationItem] = []
     @Published var selectedTab = 0
-    @Published var darkMode = false
+    @Published var darkMode = UserDefaults.standard.bool(forKey: "darkMode")
     @Published var faceIDEnabled = UserDefaults.standard.bool(forKey: "faceIDEnabled")
     @Published var appLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "ru"
     @Published var availableUpdate: AppUpdate?
@@ -45,7 +45,10 @@ final class AppState: ObservableObject {
             let firstName, lastName, username, password, birthDate: String
         }
         let formatter = DateFormatter(); formatter.dateFormat = "yyyy-MM-dd"
-        let body = Body(firstName: firstName, lastName: lastName, username: username,
+        let normalizedUsername = username.trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "@")).lowercased()
+        let body = Body(firstName: firstName.trimmingCharacters(in: .whitespacesAndNewlines),
+                        lastName: lastName.trimmingCharacters(in: .whitespacesAndNewlines), username: normalizedUsername,
                         password: password, birthDate: formatter.string(from: birthDate))
         await perform {
             let result: AuthToken = try await APIClient.shared.request("/api/auth/register", method: "POST", body: body)
@@ -73,14 +76,14 @@ final class AppState: ObservableObject {
         } catch { handle(error) }
     }
 
-    func topUp(amount: Double, currency: String) async {
+    func topUp(amount: Double, currency: String) async -> Bool {
         struct Body: Encodable { let amount: Double; let currency: String }
-        await mutate(path: "/api/wallets/top-up", body: Body(amount: amount, currency: currency), notice: "Баланс пополнен")
+        return await mutate(path: "/api/wallets/top-up", body: Body(amount: amount, currency: currency), notice: "Баланс пополнен")
     }
 
-    func exchange(amount: Double, from: String, to: String) async {
+    func exchange(amount: Double, from: String, to: String) async -> Bool {
         struct Body: Encodable { let fromCurrency, toCurrency: String; let amount: Double }
-        await mutate(path: "/api/exchange", body: Body(fromCurrency: from, toCurrency: to, amount: amount), notice: "Обмен выполнен")
+        return await mutate(path: "/api/exchange", body: Body(fromCurrency: from, toCurrency: to, amount: amount), notice: "Обмен выполнен")
     }
 
     func transfer(amount: Double, currency: String, recipient: String, confirmLarge: Bool = false) async -> Bool {
@@ -94,9 +97,22 @@ final class AppState: ObservableObject {
         } catch { handle(error); return false }
     }
 
-    func createCard(currency: String, design: String, pin: String) async {
+    func createCard(currency: String, design: String, pin: String) async -> Bool {
         struct Body: Encodable { let currency, design, pin: String }
-        await mutate(path: "/api/cards", body: Body(currency: currency, design: design, pin: pin), notice: "Карта создана")
+        guard let token else { return false }
+        isBusy = true; errorMessage = nil
+        do {
+            let card: BankCard = try await APIClient.shared.request("/api/cards", method: "POST",
+                body: Body(currency: currency, design: design, pin: pin), token: token)
+            if !cards.contains(where: { $0.id == card.id }) { cards.append(card) }
+            await NotificationService.showLocal(title: "Карта создана", body: "Виртуальная карта \(currency) готова")
+            await refresh()
+            isBusy = false
+            return true
+        } catch {
+            handle(error); isBusy = false
+            return false
+        }
     }
 
     func toggleFreeze(_ card: BankCard) async {
@@ -132,18 +148,24 @@ final class AppState: ObservableObject {
         }
     }
 
-    func pay(provider: String, account: String, category: String, amount: Double, currency: String) async {
+    func pay(provider: String, account: String, category: String, amount: Double, currency: String) async -> Bool {
         struct Body: Encodable { let provider, account, category, currency: String; let amount: Double }
-        await mutate(path: "/api/payments", body: Body(provider: provider, account: account, category: category,
-                                                        currency: currency, amount: amount), notice: "Оплата выполнена")
+        return await mutate(path: "/api/payments", body: Body(provider: provider, account: account, category: category,
+                                                               currency: currency, amount: amount), notice: "Оплата выполнена")
     }
 
-    private func mutate(path: String, body: Encodable, notice: String) async {
-        guard let token else { return }
-        await perform {
+    private func mutate(path: String, body: Encodable, notice: String) async -> Bool {
+        guard let token else { return false }
+        isBusy = true; errorMessage = nil
+        do {
             let _: JSONValue = try await APIClient.shared.request(path, method: "POST", body: body, token: token)
             await NotificationService.showLocal(title: notice, body: "Операция сохранена в Gramin")
             await self.refresh()
+            isBusy = false
+            return true
+        } catch {
+            handle(error); isBusy = false
+            return false
         }
     }
 
@@ -154,6 +176,7 @@ final class AppState: ObservableObject {
     func lockIfNeeded() { if faceIDEnabled { isLocked = true } }
     func setFaceID(_ enabled: Bool) { faceIDEnabled = enabled; UserDefaults.standard.set(enabled, forKey: "faceIDEnabled") }
     func setLanguage(_ value: String) { appLanguage = value; UserDefaults.standard.set(value, forKey: "appLanguage") }
+    func setDarkMode(_ enabled: Bool) { darkMode = enabled; UserDefaults.standard.set(enabled, forKey: "darkMode") }
 
     func logout() {
         KeychainStore.delete("gramin-token"); token = nil; profile = nil; wallets = []; cards = []; transactions = []

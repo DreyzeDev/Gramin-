@@ -58,5 +58,11 @@ struct RootTabView: View {
                 .tabItem { Label("Профиль", systemImage: "person.crop.circle.fill") }.tag(4)
         }
         .tint(.primary)
+        .alert("Не удалось выполнить действие", isPresented: Binding(
+            get: { state.errorMessage != nil },
+            set: { if !$0 { state.errorMessage = nil } }
+        )) {
+            Button("OK") { state.errorMessage = nil }
+        } message: { Text(state.errorMessage ?? "") }
     }
 }

@@ -4,6 +4,7 @@ enum GraminTheme {
     static let radius: CGFloat = 24
     static let smallRadius: CGFloat = 16
     static let shadow = Color.black.opacity(0.08)
+    static let chartPalette: [Color] = [.primary, .primary.opacity(0.78), .primary.opacity(0.58), .primary.opacity(0.42), .primary.opacity(0.28)]
 }
 
 struct GraminCard<Content: View>: View {

@@ -114,9 +114,21 @@ struct CreateCardSheet: View {
         SheetShell(title: "Новая карта") {
             Picker("Валюта", selection: $currency) { ForEach(currencies, id: \.self) { Text($0) } }.pickerStyle(.segmented)
             Picker("Дизайн", selection: $design) { ForEach(designs, id: \.0) { Text($0.1).tag($0.0) } }.pickerStyle(.segmented)
-            SecureField("PIN из 4 цифр", text: $pin).keyboardType(.numberPad).font(.title2.monospaced()).multilineTextAlignment(.center).padding()
-            Button("Выпустить карту") { Task { await state.createCard(currency: currency, design: design, pin: pin); dismiss() } }
-                .buttonStyle(PrimaryButtonStyle()).disabled(pin.count != 4)
+            SecureField("PIN из 4 цифр", text: $pin)
+                .keyboardType(.numberPad)
+                .font(.title2.monospaced())
+                .multilineTextAlignment(.center)
+                .padding()
+                .onChange(of: pin) { _, value in pin = String(value.filter { $0.isNumber }.prefix(4)) }
+            Button {
+                Task { if await state.createCard(currency: currency, design: design, pin: pin) { dismiss() } }
+            } label: {
+                HStack {
+                    if state.isBusy { ProgressView().tint(Color(.systemBackground)) }
+                    Text("Выпустить карту")
+                }
+            }
+            .buttonStyle(PrimaryButtonStyle()).disabled(pin.count != 4 || state.isBusy)
         }
     }
 }

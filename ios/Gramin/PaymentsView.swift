@@ -55,7 +55,7 @@ struct PayServiceSheet: View {
                 .background(.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
             Picker("Валюта", selection: $currency) { ForEach(currencies, id: \.self) { Text($0) } }.pickerStyle(.segmented)
             TextField("Сумма", text: $amount).keyboardType(.decimalPad).font(.largeTitle.bold()).multilineTextAlignment(.center).padding()
-            Button("Оплатить") { Task { await state.pay(provider: provider, account: account, category: category.id, amount: Double(amount) ?? 0, currency: currency); dismiss() } }
+            Button("Оплатить") { Task { if await state.pay(provider: provider, account: account, category: category.id, amount: Double(amount) ?? 0, currency: currency) { dismiss() } } }
                 .buttonStyle(PrimaryButtonStyle()).disabled(account.count < 2 || (Double(amount) ?? 0) <= 0)
         }
     }

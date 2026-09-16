@@ -14,15 +14,11 @@ enum APIError: LocalizedError {
 actor APIClient {
     static let shared = APIClient()
     private let session: URLSession = .shared
-
-    private var baseURL: URL? {
-        let raw = UserDefaults.standard.string(forKey: "serverURL") ?? "https://gramin.moonfacet.com"
-        return URL(string: raw.trimmingCharacters(in: .whitespacesAndNewlines))
-    }
+    private let baseURL = URL(string: "https://gramin.moonfacet.com")!
 
     func request<T: Decodable>(_ path: String, method: String = "GET", body: Encodable? = nil,
                                token: String? = nil) async throws -> T {
-        guard let baseURL, let url = URL(string: path, relativeTo: baseURL) else { throw APIError.invalidURL }
+        guard let url = URL(string: path, relativeTo: baseURL) else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

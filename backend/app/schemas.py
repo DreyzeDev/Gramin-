@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 SUPPORTED_CURRENCIES = {"AZN", "USD", "EUR", "RUB"}
+SUPPORTED_CARD_DESIGNS = {"obsidian", "snow", "graphite"}
 
 
 class RegisterIn(BaseModel):
@@ -14,10 +15,10 @@ class RegisterIn(BaseModel):
     birth_date: date
     avatar_url: str | None = None
 
-    @field_validator("username")
+    @field_validator("username", mode="before")
     @classmethod
-    def normalize_username(cls, value: str) -> str:
-        return value.removeprefix("@").lower()
+    def normalize_username(cls, value: object) -> object:
+        return value.removeprefix("@").lower() if isinstance(value, str) else value
 
 
 class LoginIn(BaseModel):
@@ -70,6 +71,21 @@ class CardCreateIn(BaseModel):
     currency: str
     design: str = "obsidian"
     pin: str = Field(pattern=r"^\d{4}$")
+
+    @field_validator("currency")
+    @classmethod
+    def valid_currency(cls, value: str) -> str:
+        code = value.upper()
+        if code not in SUPPORTED_CURRENCIES:
+            raise ValueError("Unsupported currency")
+        return code
+
+    @field_validator("design")
+    @classmethod
+    def valid_design(cls, value: str) -> str:
+        if value not in SUPPORTED_CARD_DESIGNS:
+            raise ValueError("Unsupported card design")
+        return value
 
 
 class CardOut(BaseModel):

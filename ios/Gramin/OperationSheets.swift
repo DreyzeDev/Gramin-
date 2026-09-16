@@ -6,13 +6,21 @@ struct SheetShell<Content: View>: View {
     let title: String
     let content: Content
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var state: AppState
     init(title: String, @ViewBuilder content: () -> Content) { self.title = title; self.content = content() }
     var body: some View {
         NavigationStack {
             ScrollView { VStack(spacing: 18) { content }.padding(20) }
                 .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
                 .toolbar { Button("Закрыть") { dismiss() } }
-        }.presentationDetents([.medium, .large]).presentationCornerRadius(30)
+        }
+        .presentationDetents([.medium, .large]).presentationCornerRadius(30)
+        .alert("Не удалось выполнить действие", isPresented: Binding(
+            get: { state.errorMessage != nil },
+            set: { if !$0 { state.errorMessage = nil } }
+        )) {
+            Button("OK") { state.errorMessage = nil }
+        } message: { Text(state.errorMessage ?? "") }
     }
 }
 
@@ -26,7 +34,7 @@ struct TopUpSheet: View {
             Text("Средства виртуальные и не имеют денежной ценности.").font(.footnote).foregroundStyle(.secondary)
             Picker("Валюта", selection: $currency) { ForEach(currencies, id: \.self) { Text($0) } }.pickerStyle(.segmented)
             TextField("Сумма", text: $amount).keyboardType(.decimalPad).font(.largeTitle.bold()).multilineTextAlignment(.center).padding()
-            Button("Пополнить") { Task { await state.topUp(amount: Double(amount) ?? 0, currency: currency); dismiss() } }
+            Button("Пополнить") { Task { if await state.topUp(amount: Double(amount) ?? 0, currency: currency) { dismiss() } } }
                 .buttonStyle(PrimaryButtonStyle()).disabled((Double(amount) ?? 0) <= 0)
         }
     }
@@ -47,7 +55,7 @@ struct ExchangeSheet: View {
             }
             TextField("Сумма", text: $amount).keyboardType(.decimalPad).font(.largeTitle.bold()).multilineTextAlignment(.center).padding()
             Text("Фиксированный демо-курс · без комиссии").font(.footnote).foregroundStyle(.secondary)
-            Button("Обменять") { Task { await state.exchange(amount: Double(amount) ?? 0, from: from, to: to); dismiss() } }
+            Button("Обменять") { Task { if await state.exchange(amount: Double(amount) ?? 0, from: from, to: to) { dismiss() } } }
                 .buttonStyle(PrimaryButtonStyle()).disabled(from == to || (Double(amount) ?? 0) <= 0)
         }
     }

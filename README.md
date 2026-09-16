@@ -80,9 +80,7 @@ xcodegen generate
 open Gramin.xcodeproj
 ```
 
-Open **Profile → Server** and enter the public HTTPS address of the deployed API.
-
-The default API address in the iOS client is `https://gramin.moonfacet.com`. It can also be changed on the sign-in screen or later in **Profile → Server**.
+The production API address is configured internally as `https://gramin.moonfacet.com`. Server infrastructure details are not shown on the sign-in, registration or profile screens.
 
 ### App updates
 

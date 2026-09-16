@@ -112,7 +112,7 @@ struct TransactionRow: View {
             }
             Spacer()
             AmountText(amount: transaction.amount.value, currency: transaction.currency)
-                .font(.subheadline.bold()).foregroundStyle(transaction.amount.value >= 0 ? .green : .primary)
+                .font(.subheadline.bold()).foregroundStyle(.primary)
         }.padding(.vertical, 3)
     }
     private var icon: String {

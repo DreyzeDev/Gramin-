@@ -1,6 +1,13 @@
 from .conftest import register
 
 
+def test_registration_accepts_at_username_and_normalizes_it(client):
+    headers = register(client, "@MixedCase")
+    profile = client.get("/api/me", headers=headers)
+    assert profile.status_code == 200
+    assert profile.json()["username"] == "mixedcase"
+
+
 def test_register_starts_with_four_empty_wallets(client):
     headers = register(client, "dreyze")
     wallets = client.get("/api/wallets", headers=headers).json()
@@ -33,6 +40,9 @@ def test_cards_and_payment(client):
     client.post("/api/wallets/top-up", headers=headers, json={"amount": 100, "currency": "USD"})
     card = client.post("/api/cards", headers=headers, json={"currency": "USD", "design": "snow", "pin": "1234"})
     assert card.status_code == 201
+    listed = client.get("/api/cards", headers=headers)
+    assert listed.status_code == 200
+    assert [item["id"] for item in listed.json()] == [card.json()["id"]]
     frozen = client.post(f"/api/cards/{card.json()['id']}/freeze", headers=headers)
     assert frozen.json()["frozen"] is True
     payment = client.post("/api/payments", headers=headers, json={
@@ -40,4 +50,17 @@ def test_cards_and_payment(client):
         "currency": "USD", "amount": 10
     })
     assert payment.status_code == 200
+
+
+def test_card_creation_validates_input(client):
+    headers = register(client, "cardvalidation")
+    bad_pin = client.post("/api/cards", headers=headers, json={
+        "currency": "AZN", "design": "obsidian", "pin": "12ab"
+    })
+    assert bad_pin.status_code == 422
+    bad_design = client.post("/api/cards", headers=headers, json={
+        "currency": "AZN", "design": "rainbow", "pin": "1234"
+    })
+    assert bad_design.status_code == 422
+    assert client.get("/api/cards", headers=headers).json() == []
 
