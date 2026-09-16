@@ -1,5 +1,5 @@
 (function () {
-  const knownVersions = ["0.5.0", "0.6.0", "0.6.1", "0.6.2", "0.6.3", "0.6.4", "0.6.5"];
+  const knownVersions = ["0.5.0", "0.6.0", "0.6.1", "0.6.2", "0.6.3", "0.6.4", "0.6.5", "0.6.6"];
   const baselineVersion = "0.6.0";
   let installedVersion = localStorage.getItem("gramin-installed-version") || baselineVersion;
 
