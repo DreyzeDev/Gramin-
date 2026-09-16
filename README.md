@@ -82,6 +82,10 @@ open Gramin.xcodeproj
 
 The production API address is configured internally as `https://gramin.moonfacet.com`. Server infrastructure details are not shown on the sign-in, registration or profile screens.
 
+### Live-updating iOS shell
+
+Starting with version 0.4.0, the installed iOS app is a small native `WKWebView` shell. The complete Gramin interface is served from `/app` by the FastAPI backend, while authentication tokens remain mirrored in the iOS Keychain. HTML, CSS and JavaScript responses use `Cache-Control: no-store`, and the shell explicitly bypasses its local cache, so interface changes become available on the next launch without rebuilding or reinstalling the IPA. A new IPA is only required when native capabilities or the WebView shell itself change.
+
 ### App updates
 
 Each iOS build publishes `Gramin-unsigned.ipa` in GitHub Releases. The app checks the latest release when it opens and offers a download when a newer version is available. Because iOS does not allow an unsigned native app to replace its own executable, the downloaded IPA must still be signed with AltStore or Sideloadly and installed over the existing app. Installing over the same bundle identifier preserves local app data.

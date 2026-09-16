@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from pathlib import Path
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 from .config import get_settings
@@ -27,6 +30,21 @@ app = FastAPI(title="Gramin Demo Bank API", version="0.1.0", lifespan=lifespan)
 origins = get_settings().cors_origins.split(",")
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"])
+WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+app.mount("/app-assets", StaticFiles(directory=WEB_DIR / "assets"), name="app-assets")
+
+
+@app.middleware("http")
+async def prevent_stale_web_shell(request, call_next):
+    response = await call_next(request)
+    if request.url.path == "/app" or request.url.path.startswith("/app-assets/"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    return response
+
+
+@app.get("/app", include_in_schema=False)
+def web_app():
+    return FileResponse(WEB_DIR / "index.html", headers={"Cache-Control": "no-store"})
 
 
 @app.get("/health")

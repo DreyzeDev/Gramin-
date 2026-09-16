@@ -8,6 +8,17 @@ def test_registration_accepts_at_username_and_normalizes_it(client):
     assert profile.json()["username"] == "mixedcase"
 
 
+def test_web_app_shell_and_assets_are_served_without_cache(client):
+    page = client.get("/app")
+    assert page.status_code == 200
+    assert "Gramin" in page.text
+    assert "no-store" in page.headers["cache-control"]
+    script = client.get("/app-assets/app.js")
+    assert script.status_code == 200
+    assert "refreshAll" in script.text
+    assert "no-store" in script.headers["cache-control"]
+
+
 def test_register_starts_with_four_empty_wallets(client):
     headers = register(client, "dreyze")
     wallets = client.get("/api/wallets", headers=headers).json()

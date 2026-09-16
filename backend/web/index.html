@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Gramin</title>
+  <link rel="icon" href="/app-assets/welcome.png">
+  <link rel="stylesheet" href="/app-assets/app.css">
+</head>
+<body>
+  <div id="boot" class="boot"><div class="mark">G</div><span>Gramin</span></div>
+
+  <main id="auth" class="auth hidden">
+    <section class="auth-card">
+      <img src="/app-assets/welcome.png" alt="" class="welcome-art">
+      <h1>Gramin</h1>
+      <p class="muted">Ваши финансы. Только проще.</p>
+      <div class="segmented">
+        <button class="segment active" data-auth-mode="login">Войти</button>
+        <button class="segment" data-auth-mode="register">Регистрация</button>
+      </div>
+
+      <form id="login-form" class="stack">
+        <label>Имя пользователя<input name="username" autocomplete="username" placeholder="@username" required minlength="4"></label>
+        <label>Пароль<input name="password" type="password" autocomplete="current-password" placeholder="Минимум 8 символов" required minlength="8"></label>
+        <button class="primary" type="submit">Войти в Gramin</button>
+      </form>
+
+      <form id="register-form" class="stack hidden">
+        <div class="pair">
+          <label>Имя<input name="first_name" autocomplete="given-name" required minlength="2"></label>
+          <label>Фамилия<input name="last_name" autocomplete="family-name" required minlength="2"></label>
+        </div>
+        <label>Имя пользователя<input name="username" autocomplete="username" placeholder="@username" required minlength="4"></label>
+        <label>Дата рождения<input name="birth_date" type="date" required></label>
+        <label>Пароль<input name="password" type="password" autocomplete="new-password" placeholder="Минимум 8 символов" required minlength="8"></label>
+        <button class="primary" type="submit">Создать демо-счёт</button>
+      </form>
+      <small>Только виртуальные деньги</small>
+    </section>
+  </main>
+
+  <div id="shell" class="shell hidden">
+    <header class="topbar">
+      <div><span class="eyebrow">GRAMIN</span><h2 id="page-title">Главная</h2></div>
+      <button id="refresh" class="icon-button" aria-label="Обновить">↻</button>
+    </header>
+
+    <div id="content" class="content">
+      <section id="view-home" class="view active">
+        <div class="hero card">
+          <span class="muted">Общий баланс</span>
+          <strong id="total-balance" class="big-money">0,00 ₼</strong>
+          <div id="wallets" class="wallet-strip"></div>
+        </div>
+        <div class="quick-actions">
+          <button data-action="transfer"><b>↗</b><span>Перевести</span></button>
+          <button data-action="topup"><b>＋</b><span>Пополнить</span></button>
+          <button data-action="exchange"><b>⇄</b><span>Обменять</span></button>
+        </div>
+        <div class="section-heading"><h3>Последние операции</h3></div>
+        <div id="transactions" class="list"></div>
+      </section>
+
+      <section id="view-cards" class="view">
+        <div id="cards" class="cards-stack"></div>
+        <button class="primary" data-action="create-card">Создать новую карту</button>
+      </section>
+
+      <section id="view-payments" class="view">
+        <div id="services" class="service-grid"></div>
+      </section>
+
+      <section id="view-analytics" class="view">
+        <div class="segmented" id="periods">
+          <button class="segment" data-period="week">Неделя</button>
+          <button class="segment active" data-period="month">Месяц</button>
+          <button class="segment" data-period="year">Год</button>
+        </div>
+        <div class="card analytics-total"><span class="muted">Расходы</span><strong id="analytics-total">0,00 ₼</strong></div>
+        <div class="card"><h3>По категориям</h3><div id="categories" class="bars"></div></div>
+        <div class="card"><h3>По дням</h3><div id="daily" class="bars"></div></div>
+      </section>
+
+      <section id="view-profile" class="view">
+        <div class="profile card">
+          <div id="avatar" class="avatar">G</div>
+          <div><h3 id="profile-name">Gramin</h3><span id="profile-username" class="muted"></span></div>
+        </div>
+        <div class="settings card">
+          <label class="switch-row"><span>Тёмная тема</span><input id="dark-mode" type="checkbox"></label>
+          <div class="row"><span>Версия интерфейса</span><b>Web 1.0</b></div>
+          <div class="row"><span>Режим</span><b>Виртуальные деньги</b></div>
+        </div>
+        <button id="logout" class="secondary danger">Выйти из аккаунта</button>
+      </section>
+    </div>
+
+    <nav class="tabbar">
+      <button class="active" data-view="home"><b>⌂</b><span>Главная</span></button>
+      <button data-view="cards"><b>▣</b><span>Карты</span></button>
+      <button data-view="payments"><b>▦</b><span>Платежи</span></button>
+      <button data-view="analytics"><b>◔</b><span>Аналитика</span></button>
+      <button data-view="profile"><b>●</b><span>Профиль</span></button>
+    </nav>
+  </div>
+
+  <dialog id="modal"><form method="dialog" id="modal-form" class="modal-card"></form></dialog>
+  <div id="toast" class="toast hidden"></div>
+  <script src="/app-assets/app.js" defer></script>
+</body>
+</html>
