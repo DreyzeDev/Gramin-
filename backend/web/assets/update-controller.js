@@ -1,5 +1,6 @@
 (function () {
   const manifestURL = "/app-assets/releases.json";
+  const postponeForMs = 10 * 60 * 1000;
   let availableRelease = null;
 
   const sheet = document.getElementById("update-sheet");
@@ -16,11 +17,23 @@
 
   function showUpdate(release) {
     if (!release || release.version === window.__GRAMIN_INSTALLED_VERSION) return;
-    if (sessionStorage.getItem("gramin-update-later") === release.version) return;
+    if (isPostponed(release.version)) return;
     availableRelease = release;
     version.textContent = `Версия ${release.version}`;
     notes.innerHTML = release.notes.map(item => `<li>${escapeHTML(item)}</li>`).join("");
     sheet.hidden = false;
+  }
+
+  function isPostponed(releaseVersion) {
+    const saved = sessionStorage.getItem("gramin-update-later");
+    if (!saved) return false;
+    try {
+      const postponed = JSON.parse(saved);
+      return postponed.version === releaseVersion && postponed.until > Date.now();
+    } catch (_) {
+      sessionStorage.removeItem("gramin-update-later");
+      return false;
+    }
   }
 
   async function checkForUpdates() {
@@ -40,7 +53,10 @@
   }
 
   laterButton.addEventListener("click", () => {
-    if (availableRelease) sessionStorage.setItem("gramin-update-later", availableRelease.version);
+    if (availableRelease) sessionStorage.setItem("gramin-update-later", JSON.stringify({
+      version: availableRelease.version,
+      until: Date.now() + postponeForMs
+    }));
     sheet.hidden = true;
   });
 
