@@ -51,7 +51,8 @@
     </header>
 
     <div id="content" class="content">
-      <section id="view-home" class="view active">
+      <section id="view-home" class="view active slate-home">
+        <div class="home-intro"><span>Добрый вечер,</span><h3 id="home-greeting">Gramin</h3></div>
         <div class="hero card home-overview">
           <div class="home-overview-balance">
             <span class="muted">Общий баланс</span>
@@ -60,13 +61,15 @@
           <section id="home-card-control" class="home-card-control" aria-label="Управление картой"></section>
           <div id="wallets" class="wallet-strip"></div>
         </div>
+        <section class="home-activity">
         <div class="quick-actions">
           <button data-action="transfer"><b><span data-icon="send"></span></b><span>Перевести</span></button>
           <button data-action="topup"><b><span data-icon="plus"></span></b><span>Пополнить</span></button>
           <button data-action="exchange"><b><span data-icon="repeat"></span></b><span>Обменять</span></button>
         </div>
-        <div class="section-heading"><h3>Последние операции</h3></div>
+        <div class="section-heading"><h3>Последние операции</h3><button class="home-see-all" data-home-analytics type="button">Все</button></div>
         <div id="transactions" class="list"></div>
+        </section>
       </section>
 
       <section id="view-cards" class="view">
