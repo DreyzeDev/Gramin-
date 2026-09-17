@@ -58,9 +58,10 @@ def issue_card(db: Session, user: User, currency: str, design: str, pin: str) ->
     if currency not in CURRENCIES:
         raise HTTPException(400, "Unsupported currency")
     expiry = (datetime.now(timezone.utc) + timedelta(days=365 * 4)).strftime("%m/%y")
+    daily_limit = {"bronze": Decimal("5000"), "gold": Decimal("10000")}.get(design, Decimal("2500"))
     card = Card(user_id=user.id, number=card_number(db), currency=currency, design=design,
                 pin_hash=hash_secret(pin), expiry=expiry,
-                cvv=f"{secrets.randbelow(1000):03d}")
+                cvv=f"{secrets.randbelow(1000):03d}", daily_limit=daily_limit)
     db.add(card)
     return card
 
