@@ -21,12 +21,12 @@ def test_web_app_shell_and_assets_are_served_without_cache(client):
     assert "no-store" in script.headers["cache-control"]
     release = client.get("/app-assets/releases.json")
     assert release.status_code == 200
-    assert release.json()["latest"] == "0.6.20"
+    assert release.json()["latest"] == "0.6.21"
     assert client.get("/app-assets/releases/0.5.0/app.js").status_code == 200
     assert client.get("/app-assets/releases/0.6.0/app.js").status_code == 200
     assert client.get("/app-assets/releases/0.6.1/app.js").status_code == 200
     assert client.get("/app-assets/releases/0.6.2/app.js").status_code == 200
-    latest_script = client.get("/app-assets/releases/0.6.20/app.js")
+    latest_script = client.get("/app-assets/releases/0.6.21/app.js")
     assert latest_script.status_code == 200
     assert "card-identity" in latest_script.text
     assert "card-back-fields" in latest_script.text
@@ -71,11 +71,15 @@ def test_cards_and_payment(client):
     listed = client.get("/api/cards", headers=headers)
     assert listed.status_code == 200
     assert [item["id"] for item in listed.json()] == [card.json()["id"]]
-    duplicate = client.post("/api/cards", headers=headers, json={
+    second = client.post("/api/cards", headers=headers, json={
         "currency": "AZN", "design": "obsidian", "pin": "4321"
     })
-    assert duplicate.status_code == 409
-    assert duplicate.json()["detail"] == "Account already has an active card"
+    assert second.status_code == 201
+    third = client.post("/api/cards", headers=headers, json={
+        "currency": "EUR", "design": "gold", "pin": "9876"
+    })
+    assert third.status_code == 409
+    assert third.json()["detail"] == "Account already has two active cards"
     frozen = client.post(f"/api/cards/{card.json()['id']}/freeze", headers=headers)
     assert frozen.json()["frozen"] is True
     payment = client.post("/api/payments", headers=headers, json={
