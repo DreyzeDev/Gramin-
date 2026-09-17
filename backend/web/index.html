@@ -17,7 +17,7 @@
   <main id="auth" class="auth hidden">
     <section class="auth-card">
       <img src="/app-assets/welcome.png" alt="" class="welcome-art">
-      <h1>Gramin</h1>
+      <h1 id="auth-title">Вход</h1>
       <p class="muted">Ваши финансы. Только проще.</p>
       <div class="segmented">
         <button class="segment active" data-auth-mode="login">Войти</button>
@@ -40,6 +40,7 @@
         <label>Пароль<input name="password" type="password" autocomplete="new-password" placeholder="Минимум 8 символов" required minlength="8"></label>
         <button class="primary" type="submit">Создать демо-счёт</button>
       </form>
+      <div class="auth-footer"><button type="button" class="auth-footer-register" data-auth-mode="register">Нет аккаунта? <b>Регистрация</b></button><button type="button" class="auth-footer-login" data-auth-mode="login">Уже есть аккаунт? <b>Войти</b></button></div>
       <small>Только виртуальные деньги</small>
     </section>
   </main>
