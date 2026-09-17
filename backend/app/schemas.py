@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 SUPPORTED_CURRENCIES = {"AZN", "USD", "EUR", "RUB"}
-SUPPORTED_CARD_DESIGNS = {"obsidian", "snow", "graphite"}
+SUPPORTED_CARD_DESIGNS = {"obsidian", "snow", "graphite", "bronze", "gold"}
 
 
 class RegisterIn(BaseModel):
