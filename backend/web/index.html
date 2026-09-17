@@ -52,12 +52,16 @@
 
     <div id="content" class="content">
       <section id="view-home" class="view active">
-        <div class="hero card">
-          <span class="muted">Общий баланс</span>
-          <strong id="total-balance" class="big-money">0,00 ₼</strong>
+        <div class="hero card home-overview">
+          <div class="home-overview-top">
+            <div class="home-overview-balance">
+              <span class="muted">Общий баланс</span>
+              <strong id="total-balance" class="big-money">0,00 ₼</strong>
+            </div>
+            <section id="home-card-control" class="home-card-control" aria-label="Управление картой"></section>
+          </div>
           <div id="wallets" class="wallet-strip"></div>
         </div>
-        <section id="home-card-control" class="home-card-control" aria-label="Управление картой"></section>
         <div class="quick-actions">
           <button data-action="transfer"><b><span data-icon="send"></span></b><span>Перевести</span></button>
           <button data-action="topup"><b><span data-icon="plus"></span></b><span>Пополнить</span></button>
